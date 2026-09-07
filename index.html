@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赛博峰哥 · 专业避坑咨询台</title>
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161a23; --card:#1c2130; --card2:#212738;
+    --border:#2a3040; --text:#e8eaf0; --muted:#9aa3b5;
+    --accent:#ff6b4a; --accent-soft:rgba(255,107,74,.12);
+    --gold:#e8c268; --red:#ff5d5d; --red-soft:rgba(255,93,93,.12);
+    --yellow:#f0b64d; --yellow-soft:rgba(240,182,77,.12);
+    --green:#5dd39e; --green-soft:rgba(93,211,158,.12);
+    --black:#8a93a8; --black-soft:rgba(138,147,168,.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:24px 16px 60px}
+
+  /* ---------- header ---------- */
+  header{text-align:center;padding:28px 0 6px}
+  .logo{font-size:44px;line-height:1}
+  h1{font-size:26px;margin-top:10px;letter-spacing:1px}
+  h1 em{color:var(--accent);font-style:normal}
+  .tagline{color:var(--muted);margin-top:8px;font-size:14px}
+  .tagline b{color:var(--gold);font-weight:600}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex;gap:8px;justify-content:center;margin:24px 0 18px;flex-wrap:wrap}
+  .tab{border:1px solid var(--border);background:var(--panel);color:var(--muted);
+    padding:9px 22px;border-radius:999px;cursor:pointer;font-size:14px;transition:.2s}
+  .tab:hover{color:var(--text)}
+  .tab.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+
+  /* ---------- chat ---------- */
+  .chat{background:var(--panel);border:1px solid var(--border);border-radius:16px;
+    padding:18px;min-height:420px;display:flex;flex-direction:column;gap:14px}
+  .chat-head{display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px solid var(--border);padding-bottom:12px}
+  .chat-head .who{font-size:14px;color:var(--muted)}
+  .chat-head .who b{color:var(--text)}
+  .btn-ghost{background:none;border:1px solid var(--border);color:var(--muted);
+    font-size:12px;padding:5px 12px;border-radius:8px;cursor:pointer;transition:.2s}
+  .btn-ghost:hover{color:var(--accent);border-color:var(--accent)}
+  .msgs{display:flex;flex-direction:column;gap:14px;flex:1;overflow:visible}
+  .row{display:flex;gap:10px;align-items:flex-start}
+  .row.user{flex-direction:row-reverse}
+  .avatar{width:36px;height:36px;border-radius:10px;background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--border)}
+  .row.user .avatar{background:var(--card2);font-size:14px;color:var(--muted)}
+  .bubble{background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:12px 14px;max-width:82%;font-size:14.5px;line-height:1.75;white-space:pre-wrap}
+  .row.user .bubble{background:var(--accent-soft);border-color:rgba(255,107,74,.3)}
+  .cursor{display:inline-block;width:7px;height:16px;background:var(--accent);
+    vertical-align:-2px;margin-left:2px;animation:blink .8s infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  .options{display:flex;flex-wrap:wrap;gap:8px;padding-left:46px}
+  .chip{background:var(--card2);border:1px solid var(--border);color:var(--text);
+    padding:8px 16px;border-radius:999px;cursor:pointer;font-size:13.5px;transition:.18s}
+  .chip:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+
+  /* ---------- report card ---------- */
+  .report{border:1px solid var(--border);border-radius:14px;overflow:hidden;
+    max-width:86%;animation:fadeUp .4s ease}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .report .r-head{background:linear-gradient(90deg,var(--accent-soft),transparent);
+    padding:12px 16px;font-weight:700;font-size:15px;color:var(--accent);border-bottom:1px solid var(--border)}
+  .r-sec{padding:12px 16px;border-bottom:1px dashed var(--border)}
+  .r-sec:last-child{border-bottom:none}
+  .r-sec h4{font-size:13px;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .r-sec p{font-size:13.5px;line-height:1.8;color:var(--text)}
+  .r-sec ul{list-style:none;margin-top:4px}
+  .r-sec li{font-size:13.5px;line-height:1.8;padding-left:16px;position:relative;color:var(--text)}
+  .r-sec li::before{content:"▸";position:absolute;left:0;color:var(--accent)}
+  .t-cold{color:var(--red)} .t-true{color:var(--gold)} .t-adv{color:var(--green)}
+  .quote{background:var(--gold);color:#1a1408;font-weight:700;padding:12px 16px;
+    font-size:14.5px;border-radius:0 0 14px 14px}
+
+  /* ---------- ranking ---------- */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .fchip{padding:6px 16px;border-radius:999px;font-size:13px;cursor:pointer;
+    border:1px solid var(--border);background:var(--panel);color:var(--muted);transition:.2s}
+  .fchip.on{color:#fff;border-color:transparent}
+  .fchip.on[data-f="all"]{background:var(--accent)}
+  .fchip.on[data-f="red"]{background:var(--red)}
+  .fchip.on[data-f="black"]{background:#3a4050;color:#fff}
+  .fchip.on[data-f="caution"]{background:var(--yellow)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+  .mcard{background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    padding:16px;transition:.2s;animation:fadeUp .35s ease}
+  .mcard:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .mcard .m-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .mcard h3{font-size:16px}
+  .tag{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:700;letter-spacing:1px}
+  .tag.red{background:var(--red-soft);color:var(--red)}
+  .tag.black{background:var(--black-soft);color:var(--black)}
+  .tag.caution{background:var(--yellow-soft);color:var(--yellow)}
+  .tag.jack{background:var(--green-soft);color:var(--green)}
+  .mcard .cmt{font-size:13.5px;line-height:1.8;margin-bottom:10px}
+  .mcard .logic{font-size:12.5px;line-height:1.7;color:var(--muted);border-top:1px dashed var(--border);padding-top:10px}
+  .mcard .logic b{color:var(--gold);font-weight:600}
+
+  footer{margin-top:26px;text-align:center;color:var(--muted);font-size:12px;line-height:1.9}
+  footer b{color:var(--gold)}
+  @media (max-width:600px){
+    .options{padding-left:0}
+    .report{max-width:100%}
+    .bubble{max-width:90%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">🎓</div>
+    <h1>赛博<em>峰哥</em> · 专业避坑咨询台</h1>
+    <div class="tagline">有话直说 · <b>先泼冷水</b> · 再给真话和建议</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" data-t="chat">🎤 一对一咨询</button>
+    <button class="tab" data-t="rank">📋 专业红黑榜</button>
+  </div>
+
+  <!-- ============ TAB 1 : CHAT ============ -->
+  <div id="view-chat">
+    <div class="chat">
+      <div class="chat-head">
+        <div class="who"><b>赛博峰哥</b> 已上线 — 咨询免费，真话管够</div>
+        <button class="btn-ghost" id="restart">↺ 重新开始</button>
+      </div>
+      <div class="msgs" id="msgs"></div>
+      <div class="options" id="opts"></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2 : RANKING ============ -->
+  <div id="view-rank" style="display:none">
+    <div class="filters">
+      <span class="fchip on" data-f="all">全部</span>
+      <span class="fchip" data-f="red">🔴 红榜</span>
+      <span class="fchip" data-f="caution">🟡 慎报</span>
+      <span class="fchip" data-f="black">⚫ 黑榜</span>
+      <span class="fchip" data-f="jack">🟢 万金油</span>
+    </div>
+    <div class="grid" id="mgrid"></div>
+  </div>
+
+  <footer>
+    风格致敬<b>张雪峰老师</b> · 本工具内容为泛化的经验之谈，仅供参考和娱乐，不构成报考建议<br>
+    重大人生决策请结合官方招生数据、院校就业质量报告与家庭实际情况综合判断
+  </footer>
+</div>
+
+<script>
+/* ================= data : majors ================= */
+const MAJORS = {
+  "计算机类":{r:"red",c:"还是那块最硬的技术饭碗，但「随便学学年薪百万」的版本已经永久下线了。真喜欢写代码的欢迎，跟风来的慎重——这行不养混子。",l:"供给暴增+岗位集中，会淘汰一批混日子的人，但真有本事的人依然是卖方市场。"},
+  "电气工程":{r:"red",c:"进国家电网的亲儿子专业。想稳定、分数够、能接受可能去县城，这就是闭眼冲的选项。",l:"电网体系岗位多且稳定，专业对口性强，竞争主要在分数而不在资源。"},
+  "师范类":{r:"red",c:"编制越来越难考，但「宇宙的尽头是编制」依然成立。适合求稳、能接受回县城就业的人。大城市重点校？现在卷到博士了。",l:"出生人口下行影响长期需求，但存量替换和县域需求仍在。"},
+  "临床医学":{r:"caution",c:"好专业，但前提是家里能「养」你到30岁——5+3+规培，学制长、前期收入低。家里紧张的慎入，想快挣钱的不适合。",l:"医疗行业的回报严重后置，前期全靠家庭输血。"},
+  "法学":{r:"caution",c:"上限很高（法考+A证+好学校），下限也很低（没过法考约等于白读）。考公第一大户，但过关率摆在那。",l:"行业证书门槛极高，两极分化严重。"},
+  "金融":{r:"caution",c:"金融是吃资源的专业：家里有矿有人脉，如鱼得水；普通家庭进去，大概率从柜员和销售干起。",l:"核心岗位极度依赖资源网络，学历只是入场券。"},
+  "新闻传播":{r:"caution",c:"当年那句「闭眼摸一个都比它强」虽然是段子，但背后的逻辑是真的：传统岗位在收缩。有新闻理想很好，但先把理想和饭碗分开算账。",l:"媒介环境剧变，岗位供给收缩，头部资源高度集中。"},
+  "小语种/英语":{r:"caution",c:"AI翻译这几年干了什么，你有目共睹。除非打算「语言+专业」复合发展（法律/贸易/技术），单靠语言吃饭越来越难。",l:"语言正在从「专业」变成「技能」，纯语言岗位被技术持续压缩。"},
+  "心理学":{r:"caution",c:"感兴趣的人一大堆，能靠它吃饭的人一小撮。想当心理咨询师？硕士起步，前期投入大、回报周期长。",l:"付费咨询市场尚在成熟中，正规岗位供给少。"},
+  "生化环材":{r:"black",c:"四大天坑，名不虚传。不读到博士基本没有像样的出路，实验室一坐一天，工资对不起你的青春。除非真爱+能读到头，否则快跑。",l:"产业回报周期长，岗位少、学历要求高、薪资与投入倒挂。"},
+  "土木工程":{r:"black",c:"以前是「提桶跑路」，现在是行业自己先跑了。基建高峰期已过，除非家里干这行能带你，否则慎重。",l:"行业周期下行，岗位量和薪资同步收缩。"},
+  "工商管理/市场营销":{r:"black",c:"本科毕业谁让你管工商？没有家族企业接盘，这就是「什么都学一点、什么都不精」。销售不看专业看性格，何必花四年学理论。",l:"管理岗需要经验和履历，本科段学不到不可替代的能力。"},
+  "财会":{r:"jack",c:"饿不死也发不了财的万金油，每个公司都要。想往上走？CPA先考了再说。",l:"岗位供给大，天花板靠证书和平台撑。"},
+  "机械":{r:"jack",c:"饿不死，涨薪慢。方向比专业重要：机器人、新能源、高端制造方向还行，传统画图方向就那样。",l:"制造业基本盘大，但薪资曲线平缓，上升靠行业方向选择。"},
+  "汉语言文学":{r:"jack",c:"考公万金油，岗位表里能报的最多。不考公的话，就业面就窄了——文案、编辑、教培，自行掂量。",l:"价值主要兑现在考公考编赛道。"}
+};
+const RATING_TXT = {red:"红榜",black:"黑榜",caution:"慎报",jack:"万金油"};
+
+/* ================= data : quotes ================= */
+const QUOTES = [
+  "志愿填报的本质，不是选你最喜欢的，是选你输得起的。",
+  "普通家庭的孩子，试错成本是全家攒了十八年的钱。",
+  "兴趣是最好的老师，但兴趣不能替你交房租。",
+  "你以为你在选专业，其实你在选未来十年跟谁抢饭碗。",
+  "家里没矿，技术就是最硬的靠山。",
+  "别用四年后的眼泪，为今天的浪漫买单。",
+  "专业没有好坏，只有「适不适合这个时代的饭碗」。",
+  "分数是敲门砖，不是免死金牌。进了社会看的是你手里有没有活。"
+];
+
+/* ================= chat engine ================= */
+const msgsEl = document.getElementById('msgs');
+const optsEl = document.getElementById('opts');
+let answers = {};
+
+function botSay(text, cb){
+  const row = document.createElement('div'); row.className='row';
+  row.innerHTML = '<div class="avatar">🎓</div><div class="bubble"></div>';
+  msgsEl.appendChild(row);
+  const b = row.querySelector('.bubble');
+  let i=0; const cur=document.createElement('span'); cur.className='cursor';
+  b.appendChild(cur);
+  const timer = setInterval(()=>{
+    b.firstChild && b.textContent.length < text.length ? null : null;
+    cur.before(text[i++]);
+    msgsEl.scrollIntoView({block:'end',behavior:'smooth'});
+    if(i>=text.length){clearInterval(timer);cur.remove();cb&&cb();}
+  },14);
+}
+function userSay(text){
+  const row = document.createElement('div'); row.className='row user';
+  row.innerHTML = '<div class="avatar">George</div><div class="bubble"></div>';
+  row.querySelector('.bubble').textContent = text;
+  msgsEl.appendChild(row);
+}
+function setOptions(list){
+  optsEl.innerHTML='';
+  list.forEach(o=>{
+    const c=document.createElement('button'); c.className='chip'; c.textContent=o.label;
+    c.onclick=()=>{ optsEl.innerHTML=''; userSay(o.label); o.next(); };
+    optsEl.appendChild(c);
+  });
+}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+/* ---------- flow definition ---------- */
+function start(){
+  answers={}; msgsEl.innerHTML='';
+  botSay("来了？坐。\n今天聊哪出？", ()=>{
+    setOptions([
+      {label:"高考志愿填报",next:flowGaokao},
+      {label:"我想报个专业，帮我看看",next:flowMajor},
+      {label:"考研有点纠结",next:flowKaoyan}
+    ]);
+  });
+}
+
+/* ===== flow 1 : gaokao ===== */
+function flowGaokao(){
+  botSay("行，志愿填报是大事。先说好：我只负责把真话摊开，决定你自己做。\n第一个问题——", ()=>{
+    setOptions([
+      {label:"物理类",next:()=>{answers.sub="物理";q2();}},
+      {label:"历史类",next:()=>{answers.sub="历史";q2();}},
+      {label:"还没分科",next:()=>{answers.sub="未定";q2();}}
+    ]);
+  });
+  function q2(){
+    botSay("大概什么分数段？说实话，别客气。", ()=>{
+      setOptions([
+        {label:"能摸到985",next:()=>{answers.score="985";q3();}},
+        {label:"211上下",next:()=>{answers.score="211";q3();}},
+        {label:"一本线附近",next:()=>{answers.score="一本";q3();}},
+        {label:"本科线边缘",next:()=>{answers.score="本科边缘";q3();}},
+        {label:"专科段",next:()=>{answers.score="专科";q3();}}
+      ]);
+    });
+  }
+  function q3(){
+    botSay("你更想干嘛？——注意，是「你想干嘛」，不是「别人说该干嘛」。", ()=>{
+      setOptions([
+        {label:"学门硬技术",next:()=>{answers.will="技术";q4();}},
+        {label:"跟人打交道",next:()=>{answers.will="人际";q4();}},
+        {label:"图个稳定",next:()=>{answers.will="稳定";q4();}},
+        {label:"就想搞钱",next:()=>{answers.will="搞钱";q4();}},
+        {label:"还没想好",next:()=>{answers.will="未定";q4();}}
+      ]);
+    });
+  }
+  function q4(){
+    botSay("最后一个问题，也是最重要的：家里什么情况？", ()=>{
+      setOptions([
+        {label:"家里有矿",next:()=>{answers.family="有矿";reportGaokao();}},
+        {label:"普通家庭",next:()=>{answers.family="普通";reportGaokao();}},
+        {label:"比较紧张",next:()=>{answers.family="紧张";reportGaokao();}}
+      ]);
+    });
+  }
+}
+
+const G_COLD = {
+  "985":"分数是敲门砖，不是免死金牌。别以为摸到985就稳了——学校牌子只能帮你过简历关，进了社会看的是你手里有没有活。",
+  "211":"这个分段最容易犯的错：为了个211的牌子去学天坑专业。牌子能用四年，专业跟你一辈子。",
+  "一本":"一本线上下是真正的技术活，每年高分低就、滑档退档的重灾区就是这个分段。每个专业组都别偷懒。",
+  "本科边缘":"先说难听的：这个分段选择权不大，纠结「理想」是奢侈品。核心任务就一个——把本科保住，再谈别的。",
+  "专科":"别灰心，也别摆烂。专科的核心不是学历是技能，选对方向（铁路、电力、护理、口腔）照样有铁饭碗。"
+};
+const G_SUB = {
+  "物理":"物理类选择面宽是宽，但坑也多——生化环材土木全在里面排队等你。宽，不等于可以随便选。",
+  "历史":"历史类专业的选择面比物理类窄一大截，主战场就那几个：法学、汉语言、财会、师范。提前想清楚。",
+  "未定":"还没分科就先记住这个事实：物理类的专业选择面宽得多。除非历史能打到顶级，否则建议咬牙选物理。"
+};
+const G_WILL = {
+  "技术":"想学硬技术，优先级这么看：计算机（及相关）、电气、电子信息、自动化。记住：技术饭碗的核心竞争力是自学能力，不是那张课表。",
+  "人际":"跟人打交道是本事，但要配一个「硬载体」：法学+口才、师范+耐心、财会+细心。光会说不会干，那就是纯销售——也不是不行，但你得先问问自己扛不扛得住没有底薪的日子。",
+  "稳定":"求稳路线现在卷得厉害：电气进网、师范考编、临床进院、公安入警，条条都要考。「宇宙的尽头是编制」这句话，越早认清越好。",
+  "搞钱":"想搞钱没错，但本科专业和「搞钱」之间隔着十万八千里。真想搞钱：计算机相关打底，或者认清自己是不是做销售的料。别把「想搞钱」当选专业的理由——钱是能力的结果，不是专业的赠品。",
+  "未定":"没想好，就选「可进可退」的：计算机、电气、财会这类就业面宽的，先把路铺宽，大二大三再收窄方向。最怕的不是选错，是选了个不可逆的坑。"
+};
+const G_FAM = {
+  "有矿":"家里有矿，你的容错率比别人高，可以考虑长周期专业甚至纯兴趣专业。但记住：矿是爸妈的，本事才是你的。",
+  "普通":"普通家庭的策略就一句话：优先变现快、不依赖家庭资源的专业。金融、艺术这类「吃资源」的，慎。",
+  "紧张":"家里紧张，更要算经济账：学制长、前期投入大的专业（比如临床）要慎重评估，技能型、周期短、好就业的方向优先。读书是投资，投资就要算回报周期。"
+};
+
+function reportGaokao(){
+  botSay("行，情况我摸清了。给你出份报告——丑话在前，真话在后。", ()=>{
+    const html =
+    '<div class="report">'+
+      '<div class="r-head">📋 志愿填报咨询报告</div>'+
+      '<div class="r-sec"><h4 class="t-cold">🧊 先泼个冷水</h4><p>'+G_COLD[answers.score]+'</p><p>'+G_SUB[answers.sub]+'</p></div>'+
+      '<div class="r-sec"><h4 class="t-true">💡 说点真话</h4><p>'+G_WILL[answers.will]+'</p></div>'+
+      '<div class="r-sec"><h4 class="t-adv">✅ 给你的建议</h4><ul>'+
+        '<li>'+G_FAM[answers.family]+'</li>'+
+        '<li>去查你要报的专业近三年毕业生真实去向，别只看招生简章——简章是广告，就业报告才是体检表。</li>'+
+        '<li>平行志愿的冲稳保梯度拉开，「服从调剂」想清楚再勾：勾了可能被调进坑，不勾可能直接滑档，两头都是风险。</li>'+
+      '</ul></div>'+
+      '<div class="quote">「'+pick(QUOTES)+'」</div>'+
+    '</div>';
+    const row=document.createElement('div'); row.className='row';
+    row.innerHTML='<div class="avatar">🎓</div>'+html;
+    msgsEl.appendChild(row);
+    setOptions([
+      {label:"换个话题再聊",next:start},
+      {label:"就到这，谢了峰哥",next:()=>{botSay("去吧。记住：报志愿是孩子的事，但选错了是全家的事。想清楚了再点确认。🎓",()=>setOptions([{label:"再聊一轮",next:start}]));}}
+    ]);
+  });
+}
+
+/* ===== flow 2 : major ===== */
+function flowMajor(){
+  botSay("行，说说你想报哪个？我这边红黑两本账都记着。", ()=>{
+    const list = Object.keys(MAJORS).map(k=>({label:k,next:()=>{answers.major=k;why();}}));
+    setOptions(list);
+  });
+  function why(){
+    botSay("「"+answers.major+"」，有点意思。\n关键问题来了——你为啥想报它？", ()=>{
+      setOptions([
+        {label:"真心喜欢",next:()=>{answers.why="喜欢";fam();}},
+        {label:"听说好就业",next:()=>{answers.why="就业";fam();}},
+        {label:"家里人让报的",next:()=>{answers.why="家人";fam();}},
+        {label:"分数刚好够",next:()=>{answers.why="分数";fam();}},
+        {label:"听说挣钱",next:()=>{answers.why="挣钱";fam();}}
+      ]);
+    });
+  }
+  function fam(){
+    botSay("最后一个问题：家里什么情况？这决定了你有多少试错空间。", ()=>{
+      setOptions([
+        {label:"家里有矿",next:()=>{answers.family="有矿";reportMajor();}},
+        {label:"普通家庭",next:()=>{answers.family="普通";reportMajor();}},
+        {label:"比较紧张",next:()=>{answers.family="紧张";reportMajor();}}
+      ]);
+    });
+  }
+}
+
+const M_WHY = {
+  "喜欢":"你说真心喜欢——很好，这是所有理由里唯一能扛过四年枯燥的。但「喜欢」也要做功课：去找这个专业的培养方案和真实课表看一眼，别把「想象中的专业」当成喜欢的对象。",
+  "就业":"「听说」是志愿填报里最贵的两个字。好就业的版本可能是三年前的，而你毕业是七年以后的事。去查最新的就业质量报告，别听七姑八大姨的。",
+  "家人":"家里人的经验，可能是二十年前的人力市场行情。孝顺没错，但专业是你自己读四年、干一辈子。把「商量」变成「带着数据去谈」。",
+  "分数":"「分数刚好够」是填志愿里最常见的将就。先回答两个问题：这个专业你了解吗？你能接受它最差的出口吗？两个都答不上来，宁可浪费几分去个稳的。",
+  "挣钱":"听说挣钱的专业，等你毕业时往往已经挤满了「听说挣钱」的人。真正挣钱的是「供给少+需求在涨」的交叉点，不是热搜。"
+};
+const M_FAM = {
+  "有矿":"家里有矿，容错率高——那更要利用这个优势去试错和积累，而不是躺平。",
+  "普通":"普通家庭，优先选不依赖资源、靠本事吃饭的路子。",
+  "紧张":"家里紧张，就把学费、学制、前期收入全算一遍。读书是投资，得算回报周期。"
+};
+
+function reportMajor(){
+  const m = MAJORS[answers.major];
+  let extra = "";
+  if(answers.major==="金融" && answers.family==="普通"){
+    extra = "<p>特别提醒：普通家庭报金融，请把「家里能不能帮上忙」这一栏老老实实填进去再决定。</p>";
+  }
+  if(answers.major==="临床医学" && answers.family==="紧张"){
+    extra = "<p>特别提醒：家里紧张+临床医学=前五年靠信念活着，这个组合请三思。</p>";
+  }
+  botSay("好，账我给你算——", ()=>{
+    const html =
+    '<div class="report">'+
+      '<div class="r-head">📋 专业点评：'+answers.major+' <span class="tag '+m.r+'">'+RATING_TXT[m.r]+'</span></div>'+
+      '<div class="r-sec"><h4 class="t-cold">🧊 峰哥点评</h4><p>'+m.c+'</p></div>'+
+      '<div class="r-sec"><h4 class="t-true">💡 你的动机分析</h4><p>'+M_WHY[answers.why]+'</p></div>'+
+      '<div class="r-sec"><h4 class="t-adv">✅ 底层逻辑与建议</h4><p>'+m.l+'</p>'+extra+'<p>'+M_FAM[answers.family]+'</p></div>'+
+      '<div class="quote">「'+pick(QUOTES)+'」</div>'+
+    '</div>';
+    const row=document.createElement('div'); row.className='row';
+    row.innerHTML='<div class="avatar">🎓</div>'+html;
+    msgsEl.appendChild(row);
+    setOptions([
+      {label:"再看一个专业",next:flowMajor},
+      {label:"换个话题",next:start}
+    ]);
+  });
+}
+
+/* ===== flow 3 : kaoyan ===== */
+function flowKaoyan(){
+  botSay("考研这事儿，年年有人哭着来问我。\n先说根本问题：你为啥考研？", ()=>{
+    setOptions([
+      {label:"真心想搞科研",next:()=>{answers.purpose="科研";k2();}},
+      {label:"为了更好就业",next:()=>{answers.purpose="就业";k2();}},
+      {label:"说实话，逃避就业",next:()=>{answers.purpose="逃避";k2();}},
+      {label:"考公的跳板",next:()=>{answers.purpose="考公";k2();}},
+      {label:"别人考我也考",next:()=>{answers.purpose="跟风";k2();}}
+    ]);
+  });
+  function k2(){
+    botSay("行，够坦诚。那你本科是什么方向？", ()=>{
+      setOptions([
+        {label:"计算机/热门工科",next:()=>{answers.bk="工科";reportKaoyan();}},
+        {label:"文科",next:()=>{answers.bk="文科";reportKaoyan();}},
+        {label:"经管类",next:()=>{answers.bk="经管";reportKaoyan();}},
+        {label:"医学",next:()=>{answers.bk="医学";reportKaoyan();}},
+        {label:"艺术类",next:()=>{answers.bk="艺术";reportKaoyan();}}
+      ]);
+    });
+  }
+}
+
+const K_PURPOSE = {
+  "科研":"真心科研，敬你是条汉子。那就冲，顺便现在就想清楚读博的事——科研这条路的门票是热爱+抗穷能力，缺一样都熬不下去。另外：选导师比选学校重要十倍，先去扒他的论文和毕业生去向。",
+  "就业":"为了就业考研，先做个功课：去查你目标行业的招聘JD，看硕士学历是真门槛还是伪门槛。有些行业硕士真香，有些是「晚三年入行、多花十几万，起薪涨两千」。这笔账算清了再决定。",
+  "逃避":"研究生不是避风港，是延迟爆炸。三年后你面对的还是同一个就业市场，只是年龄大了三岁、别人的期待值还变高了。如果只是怕，三年后你只会更怕。",
+  "考公":"思路清晰，给个提醒：很多岗位本科就能报，先去翻你想考省份近两年的岗位表，别为了「万一」多读三年。真需要硕士学历的岗位，看清楚是学硕还是专硕、全日制还是非全的要求。",
+  "跟风":"别人考你也考？用三年时间和十几万的机会成本，换一个「我也考过」，这买卖怎么算都是亏的。考研是手段，不是打卡。"
+};
+const K_BK = {
+  "工科":"工科考研整体是增值的，计算机尤其明显——但注意：工科的坑在「学校层次」，能冲好学校就冲，双非工科硕士的竞争力要掂量。",
+  "文科":"文科硕士的增值逻辑不太一样：要么走考公对口，要么冲名校牌子。「双非文科硕」的性价比，请一个字一个字认真算。",
+  "经管":"经管是内卷重灾区，名校效应极其明显。双非经管硕士，很多时候不如三年工作经验+几个硬证书。",
+  "医学":"医学不用纠结——不考研基本没出路，这不是选择题。规培和专培的账，现在就算好。",
+  "艺术":"艺术类考研，先问自己是真爱创作还是想要张文凭。这个行业里作品集比学历硬，别把三年时间花错地方。"
+};
+
+function reportKaoyan(){
+  botSay("行，听你的意思是心里其实有点数了。我把话给你说透——", ()=>{
+    const html =
+    '<div class="report">'+
+      '<div class="r-head">📋 考研决策咨询报告</div>'+
+      '<div class="r-sec"><h4 class="t-cold">🧊 先泼个冷水</h4><p>'+K_PURPOSE[answers.purpose]+'</p></div>'+
+      '<div class="r-sec"><h4 class="t-true">💡 结合你的专业说</h4><p>'+K_BK[answers.bk]+'</p></div>'+
+      '<div class="r-sec"><h4 class="t-adv">✅ 通用提醒</h4><ul>'+
+        '<li>考研的决定标准就一条：它是不是通往你目标的「最短路径」。绕路的坚持，感动的只有自己。</li>'+
+        '<li>备考前先算时间成本：这一年不工作、不实习，机会成本写进总账。</li>'+
+        '<li>无论考不考，去目标院校研究生院官网扒拟录取名单和就业去向，一手数据比一百篇经验帖都值钱。</li>'+
+      '</ul></div>'+
+      '<div class="quote">「'+pick(QUOTES)+'」</div>'+
+    '</div>';
+    const row=document.createElement('div'); row.className='row';
+    row.innerHTML='<div class="avatar">🎓</div>'+html;
+    msgsEl.appendChild(row);
+    setOptions([
+      {label:"换个话题再聊",next:start},
+      {label:"就到这，谢了峰哥",next:()=>{botSay("去吧。考研不是人生的续命丹，想清楚了再上桌。🎓",()=>setOptions([{label:"再聊一轮",next:start}]));}}
+    ]);
+  });
+}
+
+/* ================= ranking tab ================= */
+const grid = document.getElementById('mgrid');
+function renderGrid(filter){
+  grid.innerHTML='';
+  Object.entries(MAJORS).forEach(([name,m],i)=>{
+    if(filter!=='all' && m.r!==filter) return;
+    const card=document.createElement('div'); card.className='mcard';
+    card.style.animationDelay=(i*30)+'ms';
+    card.innerHTML =
+      '<div class="m-top"><h3>'+name+'</h3><span class="tag '+m.r+'">'+RATING_TXT[m.r]+'</span></div>'+
+      '<div class="cmt">'+m.c+'</div>'+
+      '<div class="logic"><b>底层逻辑：</b>'+m.l+'</div>';
+    grid.appendChild(card);
+  });
+}
+document.querySelectorAll('.fchip').forEach(f=>{
+  f.onclick=()=>{
+    document.querySelectorAll('.fchip').forEach(x=>x.classList.remove('on'));
+    f.classList.add('on'); renderGrid(f.dataset.f);
+  };
+});
+renderGrid('all');
+
+/* ================= tabs ================= */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    document.getElementById('view-chat').style.display = t.dataset.t==='chat'?'':'none';
+    document.getElementById('view-rank').style.display = t.dataset.t==='rank'?'':'none';
+  };
+});
+
+document.getElementById('restart').onclick=start;
+start();
+</script>
+</body>
+</html>
