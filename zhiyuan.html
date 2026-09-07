@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>河南志愿填报智能推荐系统 · 赛博峰哥</title>
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#12151e; --card:#191d2a; --card2:#20263a;
+    --border:#2a3042; --text:#e8ebf2; --muted:#94a0b8;
+    --accent:#ff6b4a; --accent2:#ff9f43; --gold:#f0c94d; --red:#ff5d5d; --green:#52d681;
+    --blue:#4d9fff; --purple:#b388ff;
+    --gap:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 0 8px;border-bottom:1px solid var(--border);margin-bottom:20px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand .logo{font-size:28px}
+  .brand h1{font-size:20px;letter-spacing:.5px}
+  .brand h1 em{color:var(--accent);font-style:normal}
+  .brand .sub{font-size:12px;color:var(--muted)}
+  nav{display:flex;gap:8px;flex-wrap:wrap}
+  nav a{font-size:13px;padding:6px 14px;border-radius:999px;border:1px solid var(--border);color:var(--muted);transition:.2s}
+  nav a.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  nav a:hover{color:var(--text)}
+
+  section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:var(--gap)}
+  h2{font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  h2 .num{width:24px;height:24px;border-radius:6px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+
+  .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:13px;color:var(--muted)}
+  .field input,.field select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;outline:none}
+  .field input:focus,.field select:focus{border-color:var(--accent)}
+  .toggle{display:flex;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .toggle button{flex:1;padding:10px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px}
+  .toggle button.on{background:var(--accent);color:#fff;font-weight:600}
+
+  .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;color:#fff;padding:11px 22px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.2s}
+  .btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-outline{background:transparent;border:1px solid var(--accent);color:var(--accent);padding:8px 16px;border-radius:10px;cursor:pointer;font-size:13px}
+
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:14px}
+  .sum-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+  .sum-card .val{font-size:22px;font-weight:700;color:var(--accent)}
+  .sum-card .lab{font-size:12px;color:var(--muted);margin-top:4px}
+
+  .filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+  .fchip{background:var(--card);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.2s}
+  .fchip:hover{border-color:var(--accent)}
+  .fchip.on{background:var(--accent2);border-color:var(--accent2);color:#1a1400;font-weight:600}
+
+  .tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);margin-bottom:14px}
+  .tab{padding:10px 18px;border-bottom:2px solid transparent;cursor:pointer;color:var(--muted);font-size:14px}
+  .tab.on{color:var(--text);border-color:var(--accent);font-weight:600}
+  .tab .badge{font-size:10px;padding:2px 6px;border-radius:999px;background:var(--card2);margin-left:4px;color:var(--muted)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;transition:.2s;position:relative}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+  .card h3{font-size:15px;line-height:1.3}
+  .card .tag{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:700;white-space:nowrap}
+  .tag.chong{background:rgba(255,93,93,.15);color:var(--red)}
+  .tag.wen{background:rgba(240,201,77,.15);color:var(--gold)}
+  .tag.bao{background:rgba(82,214,129,.15);color:var(--green)}
+  .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .score-row{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin:6px 0}
+  .score-row b{color:var(--text)}
+  .gap{font-size:12px;margin-top:6px;padding-top:8px;border-top:1px dashed var(--border)}
+  .majors{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6}
+  .majors b{color:var(--text)}
+
+  .empty{text-align:center;color:var(--muted);padding:40px 20px}
+  .loading{color:var(--muted);text-align:center;padding:30px}
+  .warn{background:rgba(255,93,93,.1);border-left:3px solid var(--red);padding:12px 14px;border-radius:0 10px 10px 0;color:#ffd2d2;font-size:13px;margin:10px 0}
+  .tip{background:rgba(77,159,255,.1);border-left:3px solid var(--blue);padding:12px 14px;border-radius:0 10px 10px 0;color:#cce0ff;font-size:13px;margin:10px 0}
+
+  .assess{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .qcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .qcard h4{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opts button{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:999px;font-size:13px;cursor:pointer;transition:.18s}
+  .opts button:hover{border-color:var(--accent)}
+  .opts button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+  footer{margin-top:30px;text-align:center;color:var(--muted);font-size:12px;line-height:1.9}
+  footer b{color:var(--gold)}
+
+  @media(max-width:600px){
+    .grid{grid-template-columns:1fr}
+    header{flex-direction:column;align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">🎓</div>
+      <div>
+        <h1>河南志愿填报智能推荐 <em>赛博峰哥</em></h1>
+        <div class="sub">基于 2025 年河南新高考真实投档数据 · 位次法 · 有话直说</div>
+      </div>
+    </div>
+    <nav>
+      <a href="index.html">电子雪峰</a>
+      <a href="#input" class="on">智能推荐</a>
+      <a href="#assess">生涯测评</a>
+      <a href="#about">数据说明</a>
+    </nav>
+  </header>
+
+  <section id="input">
+    <h2><span class="num">1</span>先定位：分数 → 位次</h2>
+    <div class="form">
+      <div class="field">
+        <label>科类</label>
+        <div class="toggle" id="subjectToggle">
+          <button class="on" data-v="物理">物理类</button>
+          <button data-v="历史">历史类</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>高考分数</label>
+        <input type="number" id="scoreInput" placeholder="输入 2025 年河南高考分数" min="100" max="750">
+      </div>
+      <div class="field">
+        <label>再选科目（多选，用于过滤专业组要求）</label>
+        <div class="opts" id="electiveOpts">
+          <button data-v="化学">化学</button>
+          <button data-v="生物">生物</button>
+          <button data-v="政治">政治</button>
+          <button data-v="地理">地理</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>地区偏好</label>
+        <select id="locationSelect">
+          <option value="all">不限</option>
+          <option value="henan">河南省内优先</option>
+          <option value="nothenan">想出省看看</option>
+          <option value="zhengzhou">郑州市优先</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="calcBtn">开始定位 & 推荐</button>
+      <button class="btn-outline" id="assessFirstBtn">先做生涯测评</button>
+    </div>
+  </section>
+
+  <section id="summary" style="display:none">
+    <h2><span class="num">2</span>你的位置</h2>
+    <div class="summary" id="summaryBox"></div>
+    <div id="summaryTip" class="tip"></div>
+  </section>
+
+  <section id="result" style="display:none">
+    <h2><span class="num">3</span>推荐院校专业组</h2>
+    <div class="filters" id="typeFilters">
+      <span class="fchip on" data-f="all">全部</span>
+      <span class="fchip" data-f="冲">冲一冲</span>
+      <span class="fchip" data-f="稳">稳一稳</span>
+      <span class="fchip" data-f="保">保一保</span>
+    </div>
+    <div class="tip" id="bucketTip" style="display:none"></div>
+    <div class="tabs" id="bucketTabs">
+      <div class="tab on" data-t="score">按分数匹配</div>
+      <div class="tab" data-t="career">结合生涯测评</div>
+    </div>
+    <div id="recLoading" class="loading">正在加载 2025 投档数据...</div>
+    <div id="recBox"></div>
+  </section>
+
+  <section id="assess">
+    <h2><span class="num">4</span>生涯测评：你适合什么方向？</h2>
+    <div class="assess" id="assessBox">
+      <div class="qcard"><h4>1. 你更想干嘛？</h4><div class="opts" data-q="goal">
+        <button data-v="tech">学门硬技术</button>
+        <button data-v="people">跟人打交道</button>
+        <button data-v="stable">图个稳定</button>
+        <button data-v="money">就想搞钱</button>
+      </div></div>
+      <div class="qcard"><h4>2. 家里什么情况？</h4><div class="opts" data-q="family">
+        <button data-v="rich">有矿</button>
+        <button data-v="normal">普通家庭</button>
+        <button data-v="tight">比较紧张</button>
+      </div></div>
+      <div class="qcard"><h4>3. 数学/物理扛得住吗？</h4><div class="opts" data-q="math">
+        <button data-v="ok">能扛</button>
+        <button data-v="mid">一般</button>
+        <button data-v="weak">看见就头疼</button>
+      </div></div>
+      <div class="qcard"><h4>4. 想出省吗？</h4><div class="opts" data-q="region">
+        <button data-v="stay">坚决不出省</button>
+        <button data-v="prefer">省内优先</button>
+        <button data-v="any">全国都行</button>
+      </div></div>
+      <div class="qcard"><h4>5. 对编制的态度？</h4><div class="opts" data-q="bian">
+        <button data-v="must">必须编制</button>
+        <button data-v="nice">能进更好</button>
+        <button data-v="no">不感兴趣</button>
+      </div></div>
+      <div class="qcard"><h4>6. 学医/师范/警校这类长周期或定向专业？</h4><div class="opts" data-q="cycle">
+        <button data-v="yes">可以接受</button>
+        <button data-v="no">想要短平快</button>
+      </div></div>
+    </div>
+    <div style="margin-top:14px"><button class="btn" id="applyAssessBtn">应用测评结果到推荐</button></div>
+    <div id="assessResult" class="tip" style="display:none"></div>
+  </section>
+
+  <section id="about">
+    <h2><span class="num">5</span>数据说明</h2>
+    <p style="font-size:13.5px;line-height:1.9;color:var(--muted)">
+      本系统使用 <b>河南省 2025 年新高考一分一段表</b> 和 <b>河南省阳光高考信息平台（gaokao.haedu.cn）</b> 公布的 2025 年本科批院校专业组录取数据。<br>
+      推荐逻辑采用 <b>位次法 / 等效分差法</b>：输入分数后先换算全省位次，再与各专业组投档最低分位次比对，划分“冲稳保”梯度。<br>
+      <b>重要提醒：</b>算法基于历史数据给出概率参考，不保证录取。2026 年招生计划、考生填报热度、专业组设置都可能变化。最终志愿请以河南省教育考试院官方信息和学校招生章程为准。
+    </p>
+  </section>
+
+  <footer>
+    风格致敬<b>张雪峰老师</b> · 数据仅供学习研究参考，不构成报考建议<br>
+    <a href="index.html">电子雪峰一对一咨询</a> · <a href="https://github.com/zhgao/cyber-fengge" target="_blank">GitHub 开源</a>
+  </footer>
+</div>
+
+<script>
+/* ===================== 数据加载 ===================== */
+let scoreTable = [];
+let groups = [];
+let assess = {};
+let currentSubject = '物理';
+let currentScore = 0;
+let currentRank = 0;
+
+const TOTAL_PHYSICS = 348358; // 2025 物理类本科上线人数
+const TOTAL_HISTORY = 90174;  // 2025 历史类本科上线人数
+const SCORE_LINE = {物理:427, 历史:471};
+const SPECIAL_LINE = {物理:535, 历史:552};
+
+async function loadData(subject){
+  const [rankRes, groupRes] = await Promise.all([
+    fetch(`data/henan_2025_score2rank_${subject==='物理'?'physics':'history'}.json`).then(r=>r.json()),
+    fetch('data/groups_slim.json').then(r=>r.json())
+  ]);
+  scoreTable = rankRes;
+  groups = (Array.isArray(groupRes) ? groupRes : (groupRes.groups || [])).filter(g=>g.k===subject);
+}
+
+/* ===================== UI 控件 ===================== */
+const subjectToggle = document.querySelectorAll('#subjectToggle button');
+subjectToggle.forEach(b=>b.onclick=()=>{
+  subjectToggle.forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  currentSubject = b.dataset.v;
+});
+
+document.querySelectorAll('#electiveOpts button').forEach(b=>{
+  b.onclick=()=>b.classList.toggle('on');
+});
+
+function getElectives(){
+  return Array.from(document.querySelectorAll('#electiveOpts button.on')).map(b=>b.dataset.v);
+}
+
+/* ===================== 分数→位次 ===================== */
+function scoreToRank(score){
+  // table sorted by score descending
+  const t = scoreTable;
+  if(score >= t[0].score) return t[0].rank;
+  if(score <= t[t.length-1].score) return t[t.length-1].rank;
+  for(let i=0;i<t.length-1;i++){
+    if(t[i].score >= score && score >= t[i+1].score){
+      // linear interpolate rank
+      const ratio = (t[i].score - score)/(t[i].score - t[i+1].score);
+      return Math.round(t[i].rank + ratio*(t[i+1].rank - t[i].rank));
+    }
+  }
+  return t[t.length-1].rank;
+}
+
+function formatRank(n){
+  return n.toLocaleString('zh-CN');
+}
+
+/* ===================== 推荐算法 ===================== */
+function meetsXuanke(xuanke, electives){
+  if(!xuanke) return true;
+  if(xuanke.includes('不限')) return true;
+  // extract required subjects after + (supports +化学, +化学,生物, +化学或生物)
+  const req = xuanke.split('+')[1];
+  if(!req) return true;
+  const required = req.replace(/或|、/g, ',').split(',').map(s=>s.trim()).filter(Boolean);
+  // if any required subject not in electives -> fail
+  // for "或" we simplify: any one of required is enough (since user selects their 2 electives)
+  const hasOr = req.includes('或');
+  if(hasOr) return required.some(r=>electives.includes(r));
+  return required.every(r=>electives.includes(r));
+}
+
+function classifyGroup(g, userScore, userRank){
+  const diff = g.s - userScore;
+  // rank based rule fallback
+  const rankDiff = g.r - userRank;
+  if(diff >= -2 && diff <= 8) return '冲';
+  if(diff >= -8 && diff < -2) return '稳';
+  if(diff < -8 && diff >= -45) return '保';
+  if(diff > 8) return 'out'; // too high
+  return 'out'; // too low to be meaningful safety
+}
+
+function filterGroups(){
+  const loc = document.getElementById('locationSelect').value;
+  const electives = getElectives();
+  return groups.filter(g=>{
+    if(loc==='henan' && g.p !== '河南省') return false;
+    if(loc==='nothenan' && g.p === '河南省') return false;
+    if(loc==='zhengzhou' && g.y !== '郑州市') return false;
+    if(electives.length && !meetsXuanke(g.x, electives)) return false;
+    return true;
+  });
+}
+
+/* ===================== 生涯测评映射 ===================== */
+const MAJOR_TAGS = {
+  tech:['计算机','软件','电子信息','通信','电气','自动化','人工智能','物联网','数据科学','机械','车辆','智能制造','机器人','新能源','集成电路','微电子','网络工程','信息安全','测绘','遥感'],
+  people:['法学','财会','会计','财务','审计','工商管理','市场营销','人力资源','行政管理','公共管理','国际经济与贸易','商务英语','外语','翻译','旅游管理','物流管理','电子商务'],
+  stable:['师范','教育','临床医学','口腔医学','医学','护理','药学','中医学','针灸','麻醉','影像','预防医学','法学','马克思主义','思想政治','公安','警校','定向','公费','优师','汉语言文学'],
+  money:['计算机','软件','金融','经济','统计学','数学','电气','自动化','人工智能','电子信息'],
+  longcycle:['临床医学','口腔医学','中医学','针灸推拿','麻醉学','医学影像学','中西医','基础医学','公共卫生','预防医学','师范定向','公费师范','优师','公安','警校'],
+  mathheavy:['数学','物理','计算机','软件','电子信息','通信','电气','自动化','人工智能','数据科学','统计学','金融工程','金融科技','机械','土木','测绘','遥感','航空航天'],
+  avoid:['土木工程','生物科学','生物技术','化学','环境','材料','高分子','食品','园林','农学','林学','动物科学','动物医学','水产','社会学','哲学','历史学','考古','新闻','传播','广告','心理学','小语种','英语','日语','俄语']
+};
+
+function assessScore(group){
+  let score = 0;
+  const majors = (group.m || []).join(' ');
+  const a = assess;
+  // goal
+  if(a.goal==='tech' && MAJOR_TAGS.tech.some(k=>majors.includes(k))) score += 3;
+  if(a.goal==='people' && MAJOR_TAGS.people.some(k=>majors.includes(k))) score += 3;
+  if(a.goal==='stable' && MAJOR_TAGS.stable.some(k=>majors.includes(k))) score += 3;
+  if(a.goal==='money' && MAJOR_TAGS.money.some(k=>majors.includes(k))) score += 3;
+  // family -> avoid resource-heavy if tight
+  if(a.family==='tight' && (majors.includes('金融')||majors.includes('艺术')||majors.includes('中外合作'))) score -= 2;
+  // math
+  if(a.math==='weak' && MAJOR_TAGS.mathheavy.some(k=>majors.includes(k))) score -= 2;
+  if(a.math==='ok' && MAJOR_TAGS.mathheavy.some(k=>majors.includes(k))) score += 1;
+  // region
+  if(a.region==='stay' && group.p !== '河南省') score -= 3;
+  if(a.region==='prefer' && group.p === '河南省') score += 1;
+  // bian
+  if(a.bian==='must' && !MAJOR_TAGS.stable.some(k=>majors.includes(k))) score -= 2;
+  if(a.bian==='must' && MAJOR_TAGS.stable.some(k=>majors.includes(k))) score += 2;
+  // cycle
+  if(a.cycle==='no' && MAJOR_TAGS.longcycle.some(k=>majors.includes(k))) score -= 2;
+  return score;
+}
+
+function renderRecommendations(mode='score'){
+  const box = document.getElementById('recBox');
+  const type = document.querySelector('#typeFilters .on')?.dataset.f || 'all';
+  let list = filterGroups().map(g=>{
+    const bucket = classifyGroup(g, currentScore, currentRank);
+    let career = assessScore(g);
+    return {...g, bucket, career, gap: g.s - currentScore, rankGap: g.r - currentRank};
+  }).filter(g=>g.bucket!=='out');
+
+  if(mode==='career' && Object.keys(assess).length){
+    list.sort((a,b)=>b.career - a.career || b.s - a.s);
+  } else {
+    list.sort((a,b)=>b.s - a.s);
+  }
+
+  if(type!=='all') list = list.filter(g=>g.bucket===type);
+
+  // cap each bucket display count? no, show all but note total
+  const counts = {冲:0,稳:0,保:0};
+  list.forEach(g=>counts[g.bucket]++);
+  // update chips with counts
+  const allCount = list.length;
+  document.querySelectorAll('#typeFilters .fchip').forEach(c=>{
+    const f = c.dataset.f;
+    const n = f==='all' ? allCount : counts[f];
+    c.textContent = c.textContent.replace(/\s*\(.*\)$/,'') + (n!==undefined ? ` (${n})` : '');
+  });
+  const tipEl = document.getElementById('bucketTip');
+  tipEl.style.display='block';
+  tipEl.innerHTML = `当前梯度：可冲 <b>${counts['冲']}</b> 个 · 可稳 <b>${counts['稳']}</b> 个 · 可保 <b>${counts['保']}</b> 个。河南新高考本科批可填 <b>48 个志愿</b>，建议比例大致「冲 12 · 稳 20 · 保 16」，保底必须留够，别拿人生赌概率。`;
+
+  if(list.length===0){
+    box.innerHTML = '<div class="empty">没有符合条件的推荐。尝试放宽地区、再选科目要求，或检查分数是否低于本科线。</div>';
+    return;
+  }
+
+  const html = list.slice(0,200).map(g=>{
+    const tagCls = g.bucket==='冲'?'chong':g.bucket==='稳'?'wen':'bao';
+    const majors = (g.m || []).slice(0,6).join('、') + ((g.m||[]).length>6?' 等':'');
+    const gapText = g.gap>0?`高出你 ${g.gap} 分`:`低于你 ${Math.abs(g.gap)} 分`;
+    const rankText = g.rankGap<0?`位次比你高 ${formatRank(Math.abs(g.rankGap))}`:`位次比你低 ${formatRank(g.rankGap)}`;
+    return `<div class="card">
+      <div class="top"><h3>${g.n} <span style="color:var(--muted);font-size:12px;font-weight:400">${g.g}</span></h3><span class="tag ${tagCls}">${g.bucket}</span></div>
+      <div class="meta">${g.y} · 选科要求：${g.x||'不限'}</div>
+      <div class="score-row"><span>投档最低分 <b>${g.s}</b></span><span>最低位次 <b>${formatRank(g.r)}</b></span></div>
+      <div class="gap">${gapText} · ${rankText}</div>
+      <div class="majors"><b>专业：</b>${majors}</div>
+    </div>`;
+  }).join('');
+  box.innerHTML = html;
+}
+
+/* ===================== 事件绑定 ===================== */
+document.getElementById('calcBtn').onclick = async ()=>{
+  const score = parseInt(document.getElementById('scoreInput').value);
+  if(!score){ alert('先输入分数'); return; }
+  currentScore = score;
+  document.getElementById('recLoading').style.display='block';
+  document.getElementById('recBox').innerHTML='';
+  document.getElementById('result').style.display='block';
+  await loadData(currentSubject);
+  currentRank = scoreToRank(score);
+  document.getElementById('recLoading').style.display='none';
+  document.getElementById('summary').style.display='block';
+
+  const total = currentSubject==='物理'?TOTAL_PHYSICS:TOTAL_HISTORY;
+  const line = SCORE_LINE[currentSubject];
+  const special = SPECIAL_LINE[currentSubject];
+  const overLine = score - line;
+  const pct = (currentRank/total*100).toFixed(1);
+  document.getElementById('summaryBox').innerHTML = `
+    <div class="sum-card"><div class="val">${score}</div><div class="lab">你的分数</div></div>
+    <div class="sum-card"><div class="val">${formatRank(currentRank)}</div><div class="lab">预估全省位次</div></div>
+    <div class="sum-card"><div class="val">${overLine>0?'+':''}${overLine}</div><div class="lab">超本科线</div></div>
+    <div class="sum-card"><div class="val">${score>=special?'已过':'未过'}</div><div class="lab">特招线(${special})</div></div>
+    <div class="sum-card"><div class="val">前 ${pct}%</div><div class="lab">本科考生中排名</div></div>
+  `;
+  let tip = '';
+  if(score < line) tip = `你的分数低于 2025 年${currentSubject}类本科线（${line} 分）。本科批可冲空间很小，建议重点考虑优质高职专科或征集志愿。`;
+  else if(score < special) tip = `分数在本科线上、特招线下，这段是志愿填报最拥挤的区间。建议「稳+保」占主导，别好高骛远。`;
+  else tip = `已过特招线，有一定选择空间。记住：别为了学校牌子进天坑专业，专业跟你一辈子。`;
+  document.getElementById('summaryTip').textContent = tip;
+
+  renderRecommendations();
+  document.getElementById('summary').scrollIntoView({behavior:'smooth'});
+};
+
+// type filters
+document.querySelectorAll('#typeFilters .fchip').forEach(c=>{
+  c.onclick=()=>{
+    document.querySelectorAll('#typeFilters .fchip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+    const mode = document.querySelector('#bucketTabs .on').dataset.t;
+    renderRecommendations(mode);
+  };
+});
+
+// tabs
+document.querySelectorAll('#bucketTabs .tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('#bucketTabs .tab').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    renderRecommendations(t.dataset.t);
+  };
+});
+
+// assessment
+document.querySelectorAll('#assessBox .opts').forEach(q=>{
+  q.querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{
+      q.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      assess[q.dataset.q] = b.dataset.v;
+    };
+  });
+});
+
+document.getElementById('assessFirstBtn').onclick = ()=>{
+  document.getElementById('assess').scrollIntoView({behavior:'smooth'});
+};
+
+document.getElementById('applyAssessBtn').onclick = ()=>{
+  const missing = ['goal','family','math','region','bian','cycle'].filter(k=>!assess[k]);
+  if(missing.length){ alert('先把测评题选完'); return; }
+  let advice = [];
+  if(assess.goal==='tech') advice.push('技术路线是你的主战场，重点关注计算机类、电子信息、电气、自动化。');
+  if(assess.goal==='people') advice.push('跟人打交道需要“硬载体”，法学、财会、师范、汉语言是考公和就业的平衡点。');
+  if(assess.goal==='stable') advice.push('求稳就盯紧电气、师范、临床、公安、法学/汉语言/财会这些进体制通道。');
+  if(assess.goal==='money') advice.push('想搞钱没问题，但别把“想搞钱”当成选专业的理由——先拿计算机或电气打底，再看自己是不是做销售的料。');
+  if(assess.family==='tight') advice.push('家里紧张，优先学制短、见效快、不依赖家庭资源的专业，避开金融、艺术和长学制医学。');
+  if(assess.math==='weak') advice.push('数学/物理弱，谨慎选择纯工科，管理类、师范类、语言类、法学类相对友好。');
+  if(assess.region==='stay') advice.push('不出省，就把省内院校摸透，郑州、新乡、洛阳、焦作的学校优先看。');
+  if(assess.bian==='must') advice.push('必须编制：电气、师范、临床、公安、法学、汉语言、财会这些考公考编岗位多的方向重点考虑。');
+  if(assess.cycle==='no') advice.push('不想长周期：避开临床、中医、师范定向、公安联考后长期基层锻炼路径。');
+  document.getElementById('assessResult').style.display='block';
+  document.getElementById('assessResult').innerHTML = '<b>测评结论：</b><br>'+advice.map(s=>'· '+s).join('<br>');
+  // switch to career tab if results already shown
+  if(document.getElementById('result').style.display!=='none'){
+    document.querySelectorAll('#bucketTabs .tab').forEach(x=>x.classList.remove('on'));
+    document.querySelector('#bucketTabs .tab[data-t="career"]').classList.add('on');
+    renderRecommendations('career');
+    document.getElementById('result').scrollIntoView({behavior:'smooth'});
+  }
+};
+
+// location select change re-render
+document.getElementById('locationSelect').onchange = ()=>{
+  if(document.getElementById('result').style.display!=='none'){
+    const mode = document.querySelector('#bucketTabs .on').dataset.t;
+    renderRecommendations(mode);
+  }
+};
+document.getElementById('electiveOpts').addEventListener('click', ()=>{
+  if(document.getElementById('result').style.display!=='none'){
+    const mode = document.querySelector('#bucketTabs .on').dataset.t;
+    renderRecommendations(mode);
+  }
+});
+</script>
+</body>
+</html>
